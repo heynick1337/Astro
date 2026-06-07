@@ -7,142 +7,249 @@
   <link rel="shortcut icon" href="favicon.png" type="image/x-icon">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="moreFiles/style.css">
 </head>
 <body>
 
-  <!-- LOGIN SCREEN -->
-  <div class="login-screen" id="loginScreen">
-    <div class="login-bg">
-      <div class="login-orb orb1"></div>
-      <div class="login-orb orb2"></div>
-      <div class="login-orb orb3"></div>
-    </div>
-    <div class="login-card" id="loginCard">
-      <div class="login-logo">
-        <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-          <circle cx="20" cy="20" r="18" stroke="var(--accent)" stroke-width="2"/>
-          <path d="M12 20 Q20 8 28 20 Q20 32 12 20Z" fill="var(--accent)" opacity="0.9"/>
-          <circle cx="20" cy="20" r="4" fill="var(--bg-primary)"/>
-        </svg>
-        <span class="login-brand">glober</span>
-      </div>
-      <h1 class="login-title">Talk to the world.</h1>
-      <p class="login-sub">No accounts. No profiles. Just your name.</p>
-
-      <div class="login-form">
-        <div class="input-wrap" id="inputWrap">
-          <input
-            type="text"
-            id="usernameInput"
-            class="login-input"
-            placeholder="Pick a username…"
-            maxlength="16"
-            autocomplete="off"
-            spellcheck="false"
-          />
-          <span class="char-count" id="charCount">0/16</span>
-        </div>
-        <p class="input-hint" id="inputHint">3–16 characters, letters, numbers, _ or -</p>
-        <button class="login-btn" id="loginBtn" disabled>
-          <span>Enter Chat</span>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </button>
-      </div>
-
-      <div class="theme-bar">
-        <span class="theme-label">Theme</span>
-        <div class="theme-pills">
-          <button class="theme-pill active" data-theme="midnight" title="Midnight">🌑</button>
-          <button class="theme-pill" data-theme="aurora" title="Aurora">🌌</button>
-          <button class="theme-pill" data-theme="rose" title="Rose">🌸</button>
-          <button class="theme-pill" data-theme="forest" title="Forest">🌿</button>
-          <button class="theme-pill" data-theme="light" title="Light">☀️</button>
-        </div>
-      </div>
-    </div>
+<!-- ══════════════════════════════════════════
+     LOGIN SCREEN
+══════════════════════════════════════════ -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-bg">
+    <div class="login-orb orb1"></div>
+    <div class="login-orb orb2"></div>
+    <div class="login-orb orb3"></div>
   </div>
 
-  <!-- CHAT SCREEN -->
-  <div class="chat-screen hidden" id="chatScreen">
+  <div class="login-card" id="loginCard">
+    <!-- Logo -->
+    <div class="login-logo">
+      <svg width="38" height="38" viewBox="0 0 40 40" fill="none">
+        <circle cx="20" cy="20" r="18" stroke="var(--accent)" stroke-width="2"/>
+        <path d="M12 20 Q20 8 28 20 Q20 32 12 20Z" fill="var(--accent)" opacity="0.9"/>
+        <circle cx="20" cy="20" r="4" fill="var(--bg-primary)"/>
+      </svg>
+      <span class="login-brand">glober</span>
+    </div>
 
-    <!-- SIDEBAR (online users) -->
-    <aside class="sidebar" id="sidebar">
-      <div class="sidebar-header">
-        <span class="sidebar-title">Online</span>
-        <span class="online-count" id="onlineCount">0</span>
+    <h1 class="login-title">Talk to the world.</h1>
+    <p class="login-sub">No sign‑up. Just your name.</p>
+
+    <!-- Input -->
+    <div class="login-form">
+      <div class="input-wrap" id="inputWrap">
+        <input type="text" id="usernameInput" class="login-input"
+          placeholder="Pick a username…" maxlength="16"
+          autocomplete="off" spellcheck="false"/>
+        <span class="char-count" id="charCount">0/16</span>
       </div>
-      <ul class="user-list" id="userList"></ul>
-    </aside>
+      <p class="input-hint" id="inputHint">3–16 chars · letters, numbers, _ or −</p>
+      <button class="login-btn" id="loginBtn" disabled>
+        <span>Enter Chat</span>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
 
-    <div class="chat-main">
-      <!-- TOPBAR -->
-      <header class="topbar">
-        <button class="sidebar-toggle" id="sidebarToggle" title="Online users">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/><path d="M16 3.13a4 4 0 010 7.75"/><path d="M21 21v-2a4 4 0 00-3-3.87"/></svg>
+    <!-- Theme picker -->
+    <div class="theme-bar">
+      <span class="theme-label">Theme</span>
+      <div class="theme-pills">
+        <button class="theme-pill active" data-theme="midnight" title="Midnight">🌑</button>
+        <button class="theme-pill" data-theme="aurora"   title="Aurora">🌌</button>
+        <button class="theme-pill" data-theme="rose"     title="Rose">🌸</button>
+        <button class="theme-pill" data-theme="forest"   title="Forest">🌿</button>
+        <button class="theme-pill" data-theme="light"    title="Light">☀️</button>
+      </div>
+    </div>
+
+    <!-- Footer credit on login -->
+    <div class="login-footer">
+      Made by <a class="footer-link" href="https://github.com/YOUR_GITHUB" target="_blank" rel="noopener">Nick</a>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     CHAT SCREEN
+══════════════════════════════════════════ -->
+<div class="chat-screen hidden" id="chatScreen">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-title-row">
+        <span class="sidebar-title">Online</span>
+        <span class="online-badge" id="onlineCount">0</span>
+      </div>
+    </div>
+    <ul class="user-list" id="userList"></ul>
+
+    <!-- About section in sidebar -->
+    <div class="sidebar-about">
+      <div class="about-card">
+        <div class="about-avatar">N</div>
+        <div class="about-info">
+          <span class="about-name">Nick</span>
+          <span class="about-role">Creator</span>
+        </div>
+      </div>
+      <p class="about-desc">Glober is an open global chatroom. No accounts, no data stored beyond your session.</p>
+      <div class="about-links">
+        <a class="about-link" href="https://github.com/YOUR_GITHUB" target="_blank" rel="noopener">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.604-3.369-1.342-3.369-1.342-.454-1.154-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.741 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+          GitHub
+        </a>
+        <a class="about-link" href="https://linkedin.com/in/YOUR_LINKEDIN" target="_blank" rel="noopener">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          LinkedIn
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CHAT -->
+  <div class="chat-main">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="icon-btn sidebar-toggle" id="sidebarToggle" title="Online users">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/><path d="M16 3.13a4 4 0 010 7.75M21 21v-2a4 4 0 00-3-3.87"/></svg>
         </button>
-        <div class="topbar-center">
+        <div class="topbar-brand">
           <div class="room-dot"></div>
           <span class="room-name">Global Room</span>
+          <span class="admin-crown hidden" id="adminCrown" title="Admin">👑</span>
         </div>
-        <div class="topbar-actions">
-          <div class="theme-toggle-wrap">
-            <button class="icon-btn" id="themeToggleBtn" title="Change theme">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
-            </button>
-            <div class="theme-dropdown hidden" id="themeDropdown">
-              <button class="theme-opt" data-theme="midnight">🌑 Midnight</button>
-              <button class="theme-opt" data-theme="aurora">🌌 Aurora</button>
-              <button class="theme-opt" data-theme="rose">🌸 Rose</button>
-              <button class="theme-opt" data-theme="forest">🌿 Forest</button>
-              <button class="theme-opt" data-theme="light">☀️ Light</button>
-            </div>
-          </div>
-          <button class="icon-btn" id="leaveBtn" title="Leave chat">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      </div>
+
+      <div class="topbar-right">
+        <!-- my username chip -->
+        <div class="my-chip" id="myChip">
+          <div class="my-chip-avatar" id="myChipAvatar"></div>
+          <span class="my-chip-name" id="myChipName"></span>
+        </div>
+
+        <!-- theme -->
+        <div class="theme-toggle-wrap">
+          <button class="icon-btn" id="themeToggleBtn" title="Theme">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
           </button>
-        </div>
-      </header>
-
-      <!-- MESSAGES -->
-      <div class="messages" id="messages">
-        <div class="messages-spacer"></div>
-      </div>
-
-      <!-- TYPING INDICATOR -->
-      <div class="typing-bar" id="typingBar">
-        <span id="typingText"></span>
-      </div>
-
-      <!-- REPLY PREVIEW -->
-      <div class="reply-preview hidden" id="replyPreview">
-        <div class="reply-preview-inner">
-          <div>
-            <span class="reply-to-user" id="replyToUser"></span>
-            <p class="reply-to-msg" id="replyToMsg"></p>
+          <div class="theme-dropdown hidden" id="themeDropdown">
+            <button class="theme-opt" data-theme="midnight">🌑 Midnight</button>
+            <button class="theme-opt" data-theme="aurora">🌌 Aurora</button>
+            <button class="theme-opt" data-theme="rose">🌸 Rose</button>
+            <button class="theme-opt" data-theme="forest">🌿 Forest</button>
+            <button class="theme-opt" data-theme="light">☀️ Light</button>
           </div>
-          <button class="close-reply" id="closeReply">✕</button>
         </div>
-      </div>
 
-      <!-- INPUT BAR -->
-      <div class="input-bar">
-        <div class="input-inner">
-          <div
-            class="msg-input"
-            id="msgInput"
-            contenteditable="true"
-            data-placeholder="Message everyone…"
-          ></div>
-          <button class="send-btn" id="sendBtn" title="Send">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 2L11 13M22 2L15 22 11 13 2 9l20-7z"/></svg>
-          </button>
+        <!-- about modal trigger -->
+        <button class="icon-btn" id="aboutBtn" title="About">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+        </button>
+
+        <!-- leave -->
+        <button class="icon-btn danger-btn" id="leaveBtn" title="Leave">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- MESSAGES -->
+    <div class="messages" id="messages">
+      <div class="messages-spacer"></div>
+    </div>
+
+    <!-- TYPING BAR -->
+    <div class="typing-bar" id="typingBar">
+      <span id="typingText"></span>
+    </div>
+
+    <!-- REPLY PREVIEW -->
+    <div class="reply-preview hidden" id="replyPreview">
+      <div class="reply-preview-inner">
+        <div class="reply-preview-body">
+          <span class="reply-to-label">Replying to</span>
+          <span class="reply-to-user" id="replyToUserEl"></span>
+          <p class="reply-to-msg" id="replyToMsgEl"></p>
+        </div>
+        <button class="close-reply" id="closeReply">✕</button>
+      </div>
+    </div>
+
+    <!-- INPUT BAR -->
+    <div class="input-bar">
+      <div class="input-inner">
+        <div class="msg-input" id="msgInput"
+          contenteditable="true"
+          data-placeholder="Message everyone…"></div>
+        <button class="send-btn" id="sendBtn" title="Send (Enter)">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 2L11 13M22 2L15 22 11 13 2 9l20-7z"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="chat-footer">
+      <span>Built by</span>
+      <a class="footer-link" href="https://github.com/YOUR_GITHUB" target="_blank" rel="noopener">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.604-3.369-1.342-3.369-1.342-.454-1.154-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.741 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+        Nick
+      </a>
+      <span class="footer-sep">·</span>
+      <a class="footer-link" href="https://linkedin.com/in/YOUR_LINKEDIN" target="_blank" rel="noopener">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        LinkedIn
+      </a>
+    </footer>
+  </div><!-- /chat-main -->
+
+</div><!-- /chat-screen -->
+
+
+<!-- ══════════════════════════════════════════
+     ABOUT MODAL
+══════════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="aboutModal">
+  <div class="modal-card">
+    <button class="modal-close" id="closeAbout">✕</button>
+    <div class="modal-logo">
+      <svg width="44" height="44" viewBox="0 0 40 40" fill="none">
+        <circle cx="20" cy="20" r="18" stroke="var(--accent)" stroke-width="2"/>
+        <path d="M12 20 Q20 8 28 20 Q20 32 12 20Z" fill="var(--accent)" opacity="0.9"/>
+        <circle cx="20" cy="20" r="4" fill="var(--bg-primary)"/>
+      </svg>
+      <span class="modal-brand">glober</span>
+    </div>
+    <p class="modal-desc">
+      An open, anonymous global chatroom. Messages are stored in Firebase Realtime Database during the session. No login, no data collection beyond your chosen username.
+    </p>
+    <div class="modal-divider"></div>
+    <div class="modal-regards">
+      <span class="modal-regards-label">Regards</span>
+      <div class="modal-author">
+        <div class="modal-author-avatar">N</div>
+        <div>
+          <strong class="modal-author-name">Nick</strong>
+          <div class="modal-author-links">
+            <a class="about-link" href="https://github.com/YOUR_GITHUB" target="_blank" rel="noopener">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.604-3.369-1.342-3.369-1.342-.454-1.154-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.741 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+              GitHub
+            </a>
+            <a class="about-link" href="https://linkedin.com/in/YOUR_LINKEDIN" target="_blank" rel="noopener">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+              LinkedIn
+            </a>
+          </div>
         </div>
       </div>
     </div>
   </div>
+</div>
 
-  <script src="moreFiles/script.js" type="module"></script>
+<script src="moreFiles/script.js" type="module"></script>
 </body>
 </html>
