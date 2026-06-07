@@ -1,6 +1,10 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
-import { getDatabase, ref, set, get, push, child, update, remove, onChildAdded, onChildRemoved } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js";
+import {
+  getDatabase, ref, set, push, remove,
+  onChildAdded, onChildRemoved, onValue
+} from "https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js";
 
+// ─── FIREBASE CONFIG ────────────────────────────────────────────
 const firebaseConfig = {
   apiKey: "AIzaSyD_MMtOZ53JvbhhOGDxh40GG3Q1Hed0hks",
   authDomain: "astro-f1122.firebaseapp.com",
@@ -8,409 +12,428 @@ const firebaseConfig = {
   projectId: "astro-f1122",
   storageBucket: "astro-f1122.appspot.com",
   messagingSenderId: "500839311652",
-  appId: "1:500839311652:web:b08544d6f839704097ebb1",
-  measurementId: "G-WHYVQLHKBC"
-}
+  appId: "1:500839311652:web:b08544d6f839704097ebb1"
+};
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-setInterval(() => {
-    var getDate = new Date(),
-    utc = getDate.getTime() + (getDate.getTimezoneOffset() * 60000),
-    weekday = new Array('Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'),
-    dayOfWeek = weekday[getDate.getDay()],
-    domEnder = function() { var a = getDate; if (/1/.test(parseInt((a + "").charAt(0)))) return "th"; a = parseInt((a + "").charAt(1)); return 1 == a ? "st" : 2 == a ? "nd" : 3 == a ? "rd" : "th" }(),
-    dayOfMonth = currentDate + ( getDate.getDate() < 10) ? '0' + getDate.getDate() + domEnder : getDate.getDate() + domEnder,
-    months = new Array('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'),
-    curMonth = months[getDate.getMonth()],
-    curYear = getDate.getFullYear();
-    var currentTime = getDate.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true });
-    var currentDate = currentTime + ", " + dayOfWeek + " " + dayOfMonth + " of " + curMonth + ", " + curYear;
-    document.getElementById('currentTime').innerHTML = document.getElementById('currentTime2').innerHTML = currentDate;
-}, 1000);
-function retrieveData(){
-    var sent = new Audio('moreFiles/sent.wav');
-    var received = new Audio('moreFiles/received.wav');
-    let userMessage = document.getElementById("inputBox");
-    let username = document.getElementById("name");
-    let img = document.getElementById("img");
-    var userValid = /^[a-zA-Z0-9_-]+$/;
-    var userName;
-    const admin = 'Nick';
-    function checkName() {
-        userName = prompt("Babu apna naam batao...").toLowerCase().trim();
-        if (userName.length >= 3 && userName.length <= 12 && userName.match(userValid)) {
-            localStorage.setItem('userName', userName);
-            username.innerText = localStorage.getItem("userName");
-            document.getElementById('myUsername2').innerHTML = localStorage.getItem("userName");
-            img.innerText = localStorage.getItem("userName").split(' ')[0].charAt(0).toUpperCase();
-        } else {
-            checkName()
-        }
+// ─── THEME ──────────────────────────────────────────────────────
+const THEMES = ["midnight", "aurora", "rose", "forest", "light"];
+let currentTheme = localStorage.getItem("globerTheme") || "midnight";
+
+function applyTheme(theme) {
+  currentTheme = theme;
+  document.documentElement.setAttribute("data-theme", theme);
+  localStorage.setItem("globerTheme", theme);
+  // sync all pill/opt buttons
+  document.querySelectorAll(".theme-pill").forEach(b =>
+    b.classList.toggle("active", b.dataset.theme === theme));
+  document.querySelectorAll(".theme-opt").forEach(b =>
+    b.classList.toggle("active", b.dataset.theme === theme));
+}
+applyTheme(currentTheme);
+
+// login screen theme pills
+document.querySelectorAll(".theme-pill").forEach(btn => {
+  btn.addEventListener("click", () => applyTheme(btn.dataset.theme));
+});
+
+// ─── AVATAR COLOR ───────────────────────────────────────────────
+function avatarColor(name) {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  const hue = Math.abs(hash) % 360;
+  return `hsl(${hue}, 55%, 45%)`;
+}
+function avatarLetter(name) { return name.charAt(0).toUpperCase(); }
+
+// ─── SANITIZE ────────────────────────────────────────────────────
+function sanitize(str) {
+  const el = document.createElement("div");
+  el.textContent = str;
+  return el.innerHTML;
+}
+
+// ─── FORMAT MESSAGE ──────────────────────────────────────────────
+const urlRegex = /(https?:\/\/[^\s]+)/g;
+const mentionRegex = /(@\w+)/g;
+function formatMessage(raw) {
+  let safe = sanitize(raw);
+  safe = safe.replace(urlRegex, url =>
+    `<a class="chat-link" href="${url}" target="_blank" rel="noopener">${url}</a>`);
+  safe = safe.replace(mentionRegex, m =>
+    `<span class="chat-mention">${m}</span>`);
+  return safe;
+}
+function isEmojiOnly(str) {
+  return /^\p{Extended_Pictographic}+$/u.test(str.trim()) && str.trim().length <= 4;
+}
+
+// ─── TIME ────────────────────────────────────────────────────────
+function nowTime() {
+  return new Date().toLocaleString("en-US", {
+    hour: "numeric", minute: "numeric", hour12: true
+  });
+}
+
+// ─── LOGIN ───────────────────────────────────────────────────────
+const loginScreen  = document.getElementById("loginScreen");
+const chatScreen   = document.getElementById("chatScreen");
+const usernameInput= document.getElementById("usernameInput");
+const charCount    = document.getElementById("charCount");
+const inputHint    = document.getElementById("inputHint");
+const inputWrap    = document.getElementById("inputWrap");
+const loginBtn     = document.getElementById("loginBtn");
+
+const NAME_RE = /^[a-zA-Z0-9_-]+$/;
+
+usernameInput.addEventListener("input", () => {
+  const val = usernameInput.value;
+  charCount.textContent = `${val.length}/16`;
+  const valid = val.length >= 3 && val.length <= 16 && NAME_RE.test(val);
+  loginBtn.disabled = !valid;
+  inputWrap.classList.toggle("error", val.length > 0 && !valid);
+  inputHint.classList.toggle("error-msg", val.length > 0 && !valid);
+});
+usernameInput.addEventListener("keydown", e => {
+  if (e.key === "Enter" && !loginBtn.disabled) loginBtn.click();
+});
+
+loginBtn.addEventListener("click", () => {
+  const name = usernameInput.value.trim().toLowerCase();
+  localStorage.setItem("globerUser", name);
+  startChat(name);
+});
+
+// Check if returning user
+const saved = localStorage.getItem("globerUser");
+if (saved) {
+  usernameInput.value = saved;
+  charCount.textContent = `${saved.length}/16`;
+  loginBtn.disabled = false;
+}
+
+// ─── CHAT INIT ───────────────────────────────────────────────────
+function startChat(username) {
+  loginScreen.style.animation = "cardOut 0.35s ease forwards";
+  setTimeout(() => {
+    loginScreen.classList.add("hidden");
+    chatScreen.classList.remove("hidden");
+  }, 350);
+
+  // add cardOut keyframe dynamically
+  if (!document.getElementById("cardOutStyle")) {
+    const s = document.createElement("style");
+    s.id = "cardOutStyle";
+    s.textContent = `@keyframes cardOut {
+      to { opacity: 0; transform: translateY(-16px) scale(0.97); }
+    }`;
+    document.head.appendChild(s);
+  }
+
+  initChat(username);
+}
+
+// ─── SIDEBAR / THEME TOGGLE ──────────────────────────────────────
+const sidebar        = document.getElementById("sidebar");
+const sidebarToggle  = document.getElementById("sidebarToggle");
+const themeToggleBtn = document.getElementById("themeToggleBtn");
+const themeDropdown  = document.getElementById("themeDropdown");
+const leaveBtn       = document.getElementById("leaveBtn");
+
+// mobile sidebar overlay
+const overlay = document.createElement("div");
+overlay.className = "sidebar-overlay";
+document.body.appendChild(overlay);
+
+sidebarToggle.addEventListener("click", () => {
+  sidebar.classList.toggle("open");
+  overlay.classList.toggle("show");
+});
+overlay.addEventListener("click", () => {
+  sidebar.classList.remove("open");
+  overlay.classList.remove("show");
+});
+
+themeToggleBtn.addEventListener("click", e => {
+  e.stopPropagation();
+  themeDropdown.classList.toggle("hidden");
+});
+document.addEventListener("click", () => themeDropdown.classList.add("hidden"));
+themeDropdown.addEventListener("click", e => e.stopPropagation());
+
+document.querySelectorAll(".theme-opt").forEach(btn => {
+  btn.addEventListener("click", () => {
+    applyTheme(btn.dataset.theme);
+    themeDropdown.classList.add("hidden");
+  });
+});
+
+leaveBtn.addEventListener("click", () => {
+  if (confirm("Leave the chat?")) {
+    localStorage.removeItem("globerUser");
+    location.reload();
+  }
+});
+
+// ─── MAIN CHAT LOGIC ─────────────────────────────────────────────
+function initChat(username) {
+  const sentAudio    = new Audio("moreFiles/sent.wav");
+  const recvAudio    = new Audio("moreFiles/received.wav");
+
+  const messagesEl   = document.getElementById("messages");
+  const msgInput     = document.getElementById("msgInput");
+  const sendBtn      = document.getElementById("sendBtn");
+  const typingText   = document.getElementById("typingText");
+  const typingBar    = document.getElementById("typingBar");
+  const replyPreview = document.getElementById("replyPreview");
+  const replyToUser  = document.getElementById("replyToUser");
+  const replyToMsg   = document.getElementById("replyToMsg");
+  const closeReply   = document.getElementById("closeReply");
+  const userList     = document.getElementById("userList");
+  const onlineCount  = document.getElementById("onlineCount");
+
+  let replyState = null;    // { key, user, text }
+  let typingTimer = null;
+  const TYPING_TIMEOUT = 1500;
+
+  // announce join
+  const joinTime = nowTime();
+  const joinKey = Date.now();
+  set(ref(db, `messages/${joinKey}`), {
+    user: username, time: joinTime, join: true
+  });
+  // register presence
+  const presenceRef = ref(db, `presence/${username}`);
+  set(presenceRef, { name: username, time: joinTime });
+
+  // cleanup on leave
+  window.addEventListener("beforeunload", () => {
+    remove(presenceRef);
+    remove(ref(db, "messages/typing"));
+  });
+
+  // ── Online users ───────────────────────────────────────────────
+  onValue(ref(db, "presence"), snap => {
+    userList.innerHTML = "";
+    const users = snap.val() || {};
+    const names = Object.keys(users);
+    onlineCount.textContent = names.length;
+    names.forEach(name => {
+      const li = document.createElement("li");
+      li.className = "user-item";
+      const color = avatarColor(name);
+      li.innerHTML = `
+        <div class="user-avatar" style="background:${color};color:#fff">${avatarLetter(name)}</div>
+        <span class="user-name${name === username ? " is-you" : ""}">${sanitize(name)}</span>`;
+      userList.appendChild(li);
+    });
+  });
+
+  // ── Send message ───────────────────────────────────────────────
+  function sendMsg() {
+    const text = msgInput.textContent.trim();
+    if (!text) return;
+
+    const ts = Date.now();
+    const time = nowTime();
+    const payload = { user: username, message: text, time };
+
+    if (replyState) {
+      payload.reply = true;
+      payload.replyKey = replyState.key;
+      payload.replyToUser = replyState.user;
+      payload.replyToMsg = replyState.text;
     }
-    if (localStorage.getItem('userName')) {
-        username.innerText = userName = localStorage.getItem('userName');
-        document.getElementById('myUsername2').innerHTML = localStorage.getItem("userName");
-        img.innerText = localStorage.getItem("userName").split(' ')[0].charAt(0).toUpperCase();
-    } else {
-        checkName();
+
+    set(ref(db, `messages/${ts}`), payload).then(() => {
+      sentAudio.play().catch(() => {});
+    });
+
+    msgInput.textContent = "";
+    msgInput.focus();
+    clearReply();
+    clearTypingSignal();
+  }
+
+  sendBtn.addEventListener("click", sendMsg);
+  msgInput.addEventListener("keydown", e => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMsg();
     }
-    var slash = document.getElementById('slash');
-    function getRandomColor(name) {
-        const asciiCode = name.charCodeAt(0);
-        const colorNum = asciiCode.toString() + asciiCode.toString() + asciiCode.toString();
-        var num = Math.round(0xffffff * parseInt(colorNum));
-        var r = num >> 16 & 255;
-        var g = num >> 8 & 255;
-        var b = num & 255;
-        slash.style.color = 'rgb(' + r + ', ' + g + ', ' + b + ', 1)';
+  });
+
+  // ── Typing indicator ───────────────────────────────────────────
+  function sendTypingSignal() {
+    set(ref(db, "messages/typing"), { user: username, typer: true });
+  }
+  function clearTypingSignal() {
+    clearTimeout(typingTimer);
+    remove(ref(db, "messages/typing"));
+  }
+  msgInput.addEventListener("input", () => {
+    sendTypingSignal();
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(clearTypingSignal, TYPING_TIMEOUT);
+  });
+
+  // ── Reply ──────────────────────────────────────────────────────
+  function startReply(key, user, text) {
+    replyState = { key, user, text };
+    replyToUser.textContent = user === username ? "You" : user;
+    replyToMsg.textContent = text;
+    replyPreview.classList.remove("hidden");
+    msgInput.focus();
+  }
+  function clearReply() {
+    replyState = null;
+    replyPreview.classList.add("hidden");
+  }
+  closeReply.addEventListener("click", clearReply);
+
+  // ── Scroll to bottom ───────────────────────────────────────────
+  function scrollBottom() {
+    messagesEl.scrollTo({ top: messagesEl.scrollHeight, behavior: "smooth" });
+  }
+
+  // ── Render message ─────────────────────────────────────────────
+  function renderMessage(snap) {
+    const val = snap.val();
+    const key = snap.key;
+    const isMine = val.user === username;
+
+    // ── Join event
+    if (val.join) {
+      const div = document.createElement("div");
+      div.className = "event-msg";
+      div.id = `${key}_event`;
+      const who = val.user === username ? "You" : sanitize(val.user);
+      div.innerHTML = `<span class="event-pill"><strong>${who}</strong> joined · ${val.time}</span>`;
+      messagesEl.appendChild(div);
+      setTimeout(() => remove(ref(db, `messages/${key}`)), 12000);
+      scrollBottom();
+      return;
     }
-    getRandomColor(localStorage.getItem("userName").charAt(0));
-    var timeStamp = new Date().getTime();
-    var getDate = new Date();
-    var currentTime = getDate.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true });
-    set(ref(db, 'joinedUsers/' + userName), {
-        time: currentTime
-    })
-    setTimeout(() => {
-        set(ref(db, 'messages/' + timeStamp), {
-            user: localStorage.getItem('userName').trim(),
-            time: currentTime,
-            join: true
-        })
-    }, 2000);
-    module.sendMsg = function sendMsg() {
-        var timeStamp = new Date().getTime(),
-        getDate = new Date(),
-        weekday = new Array('Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'),
-        dayOfWeek = weekday[getDate.getDay()],
-        domEnder = function() { var a = getDate; if (/1/.test(parseInt((a + "").charAt(0)))) return "th"; a = parseInt((a + "").charAt(1)); return 1 == a ? "st" : 2 == a ? "nd" : 3 == a ? "rd" : "th" }(),
-        dayOfMonth = currentDate + ( getDate.getDate() < 10) ? '0' + getDate.getDate() + domEnder : getDate.getDate() + domEnder,
-        months = new Array('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oc', 'Nov', 'Dec'),
-        curMonth = months[getDate.getMonth()],
-        curYear = getDate.getFullYear();
-        var currentTime = getDate.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true });
-        var currentDate = currentTime + ", " + dayOfWeek + " " + dayOfMonth + " of " + curMonth + ", " + curYear;
-        if (userMessage.innerText.trim().length !== 0) {
-            if (userMessage.innerText.trim().split(" ")[0] == (admin + '@')) {
-                if (userMessage.innerText.trim().split(" ")[1].trim().length !== 0) {
-                    localStorage.setItem("userName", userMessage.innerText.trim().split(" ")[1].toLowerCase().trim());
-                    username.innerText = localStorage.getItem("userName");
-                    img.innerText = localStorage.getItem("userName").split(' ')[0].charAt(0).toUpperCase();
-                    getRandomColor(localStorage.getItem("userName").split(' ')[0].charAt(0))
-                }
-            } else if (userMessage.innerText.trim() == (admin + '@clear')) {
-                remove(ref(db, 'messages/'));
-            }else {
-                if(document.querySelector('.replyToMsgSecPad')){
-                    let replyToMsgBoxIn = document.getElementById("replyToMsgBoxIn");
-                    let replyToUserBoxIn = document.getElementById("replyToUserBoxIn").innerHTML.trim();
-                    set(ref(db, 'messages/' + timeStamp), {
-                        key: replyToMsgBoxIn.getAttribute('key'),
-                        replyToUser: replyToUserBoxIn,
-                        replyToMsg: replyToMsgBoxIn.innerText.trim(),
-                        user: localStorage.getItem('userName').trim(),
-                        message: userMessage.innerText.trim(),
-                        time: currentTime,
-                        date: currentDate,
-                        reply: true
-                    }).then(() => {
-                        sent.play();
-                        document.getElementById("replyToMsgSec").innerHTML = '';
-                    })
-                } else{
-                    set(ref(db, 'messages/' + timeStamp), {
-                        user: localStorage.getItem('userName').trim(),
-                        message: userMessage.innerText.trim(),
-                        time: currentTime,
-                        date: currentDate,
-                    }).then(() => {
-                        sent.play();
-                    })
-                }
-            }
-        }
-        userMessage.focus()
-        userMessage.innerText = "";
-    }
-    let timer, timeoutVal = 800;
-    let typerStatus = document.getElementById('typerStatus');
-    let connectionStatus = document.getElementById('connectionStatus');
-    let typer = document.getElementById('typer');
-    var userData = document.getElementById("messageSec");
-    var urlRegex = /(https?:\/\/[^\s]+)/g;
-    var nameRegex = /(@[^\s]+)/g;
-    onChildAdded(ref(db, 'messages'), (snapshot) => {
-        if(document.getElementById("loader")){
-            document.getElementById("loader").remove();
-        }
-        setTimeout(() => {
-            userMessage.focus();
-        }, 1000);
-        if(snapshot.val().join){
-            if(snapshot.val().user == userName){
-                userData.innerHTML += 
-                `<div class="joinedSec" id="${snapshot.key}join">
-                    <div class="joined">
-                        <span class="joining"><span class="joinedPerson">You</span> joined the Chat <span class="joinedTime">${snapshot.val().time}</span></span>
-                    </div>
-                </div>`
-            }else{
-                userData.innerHTML += 
-                `<div class="joinedSec" id="${snapshot.key}join">
-                    <div class="joined">
-                        <span class="joining"><span class="joinedPerson" id="${snapshot.key}name">${snapshot.val().user}</span> joined the Chat <span class="joinedTime">${snapshot.val().time}</span></span>
-                    </div>
-                </div>`
-            }
-            setTimeout(() => {
-                remove(ref(db, 'messages/' + snapshot.key))
-            }, 10000);
-        }
-        else if(snapshot.val().typer){
-            if(snapshot.val().user == userName){
-                typerStatus.innerHTML = `<span class="typerName">Typing..</span>`;
-            }else{
-                typerStatus.innerHTML = `<span class="typerName" id="${snapshot.key}name">${snapshot.val().user}</span> is typing...`;
-            }
-        }
-        else{
-            if (snapshot.val().user == userName) {
-                userData.innerHTML += 
-                `<div id="${snapshot.key}outerSkin" class="outerSkin myOuterSkin" ondblclick="module.replyTo(${snapshot.key})">
-                    <div class="msgContainer myMsgContainer" id="${snapshot.key}msgContainer">
-                        <div class="funcBtns" id="${snapshot.key}funcBtns">
-                            <button id="${snapshot.key}selectBtn" class="selectMsgBox" onclick="module.selectMsg(${snapshot.key})"><svg width="11px" height="11px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#fff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M16.584 6C15.8124 4.2341 14.0503 3 12 3C9.23858 3 7 5.23858 7 8V10.0288M12 14.5V16.5M7 10.0288C7.47142 10 8.05259 10 8.8 10H15.2C16.8802 10 17.7202 10 18.362 10.327C18.9265 10.6146 19.3854 11.0735 19.673 11.638C20 12.2798 20 13.1198 20 14.8V16.2C20 17.8802 20 18.7202 19.673 19.362C19.3854 19.9265 18.9265 20.3854 18.362 20.673C17.7202 21 16.8802 21 15.2 21H8.8C7.11984 21 6.27976 21 5.63803 20.673C5.07354 20.3854 4.6146 19.9265 4.32698 19.362C4 18.7202 4 17.8802 4 16.2V14.8C4 13.1198 4 12.2798 4.32698 11.638C4.6146 11.0735 5.07354 10.6146 5.63803 10.327C5.99429 10.1455 6.41168 10.0647 7 10.0288Z" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg></button>
-                            <button id="${snapshot.key}delBtn" class="deleteMsg" onclick="module.delMsg(${snapshot.key})">Del</button>
-                        </div>
-                        <div id="${snapshot.key}mainMsgSec" class="mainMsgSec myMainMsgSec">
-                            <div class="replyToMsgSec" id="${snapshot.key}replyToMsgSec"></div>
-                            <div class="msgBox myMsgBox" id="${snapshot.key}msgBox">
-                                <span id="${snapshot.key}" class="message myMessage">${snapshot.val().message}</span>
-                            </div>
-                            <div class="myDate date" id="myDate">${snapshot.val().date}</div>
-                        </div>
-                    </div>
-                    <div class="moreDetail" id="${snapshot.key}details">
-                        <div class="timeBox">
-                            <span id="myTime" class="time myTime">${snapshot.val().time}</span>
-                            <span id="${snapshot.key}name" class="username myUsername">You</span>
-                        </div>
-                    </div>
-                </div>`;
-            } else {
-                if (localStorage.getItem("userName") == "@" + admin.toLowerCase()) {
-                    userData.innerHTML += 
-                    `<div id="${snapshot.key}outerSkin" class="outerSkin yourOuterSkin" ondblclick="module.replyTo(${snapshot.key})">
-                        <div class="msgContainer yourMsgContainer" id="${snapshot.key}msgContainer">
-                            <div id="${snapshot.key}profilePic" class="profilePic yourProfilePic">${snapshot.val().user.charAt(0).toUpperCase()}</div>
-                            <div class="mainMsgSec yourMainMsgSec">
-                                <div class="replyToMsgSec" id="${snapshot.key}replyToMsgSec"></div>
-                                <div class="msgBox yourMsgBox" id="${snapshot.key}msgBox">
-                                    <span id="${snapshot.key}" class="message yourMessage">${snapshot.val().message}</span>
-                                </div>
-                                <div class="yourDate date" id="yourDate">${snapshot.val().date}</div>
-                            </div>
-                            <div class="funcBtns" id="${snapshot.key}funcBtns">
-                                <button id="${snapshot.key}selectBtn" class="selectMsgBox" onclick="module.selectMsg(${snapshot.key})"><svg width="11px" height="11px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#fff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M16.584 6C15.8124 4.2341 14.0503 3 12 3C9.23858 3 7 5.23858 7 8V10.0288M12 14.5V16.5M7 10.0288C7.47142 10 8.05259 10 8.8 10H15.2C16.8802 10 17.7202 10 18.362 10.327C18.9265 10.6146 19.3854 11.0735 19.673 11.638C20 12.2798 20 13.1198 20 14.8V16.2C20 17.8802 20 18.7202 19.673 19.362C19.3854 19.9265 18.9265 20.3854 18.362 20.673C17.7202 21 16.8802 21 15.2 21H8.8C7.11984 21 6.27976 21 5.63803 20.673C5.07354 20.3854 4.6146 19.9265 4.32698 19.362C4 18.7202 4 17.8802 4 16.2V14.8C4 13.1198 4 12.2798 4.32698 11.638C4.6146 11.0735 5.07354 10.6146 5.63803 10.327C5.99429 10.1455 6.41168 10.0647 7 10.0288Z" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg></button>
-                                <button id="${snapshot.key}delBtn" class="deleteMsg" onclick="module.delMsg(${snapshot.key})">Del</button>
-                            </div>
-                        </div>
-                        <div class="moreDetail" id="${snapshot.key}details">
-                            <div class="timeBox">
-                            <span id="${snapshot.key}name" class="username yourUsername">${snapshot.val().user.split(' ')[0]}</span>
-                            <span id="yourTime" class="time yourTime">${snapshot.val().time}</span>
-                            </div>
-                        </div>
-                    </div>`;
-                } else {
-                    userData.innerHTML += 
-                    `<div id="${snapshot.key}outerSkin" class="outerSkin yourOuterSkin" ondblclick="module.replyTo(${snapshot.key})">
-                        <div class="msgContainer yourMsgContainer" id="${snapshot.key}msgContainer">
-                            <div id="${snapshot.key}profilePic" class="profilePic yourProfilePic">${snapshot.val().user.split(' ')[0].charAt(0).toUpperCase()}</div>
-                            <div class="mainMsgSec yourMainMsgSec">
-                                <div class="replyToMsgSec" id="${snapshot.key}replyToMsgSec"></div>
-                                <div class="msgBox yourMsgBox" id="${snapshot.key}msgBox">
-                                    <span id="${snapshot.key}" class="message yourMessage">${snapshot.val().message}</span>
-                                </div>
-                                <div class="yourDate date" id="yourDate">${snapshot.val().date}</div>
-                            </div>
-                            <div class="funcBtns" id="${snapshot.key}funcBtns">
-                                <button id="${snapshot.key}selectBtn" class="selectMsgBox" onclick="module.selectMsg(${snapshot.key})"><svg width="11px" height="11px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#fff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M16.584 6C15.8124 4.2341 14.0503 3 12 3C9.23858 3 7 5.23858 7 8V10.0288M12 14.5V16.5M7 10.0288C7.47142 10 8.05259 10 8.8 10H15.2C16.8802 10 17.7202 10 18.362 10.327C18.9265 10.6146 19.3854 11.0735 19.673 11.638C20 12.2798 20 13.1198 20 14.8V16.2C20 17.8802 20 18.7202 19.673 19.362C19.3854 19.9265 18.9265 20.3854 18.362 20.673C17.7202 21 16.8802 21 15.2 21H8.8C7.11984 21 6.27976 21 5.63803 20.673C5.07354 20.3854 4.6146 19.9265 4.32698 19.362C4 18.7202 4 17.8802 4 16.2V14.8C4 13.1198 4 12.2798 4.32698 11.638C4.6146 11.0735 5.07354 10.6146 5.63803 10.327C5.99429 10.1455 6.41168 10.0647 7 10.0288Z" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg></button>
-                                <nonsense id="${snapshot.key}delBtn" />
-                            </div>
-                        </div>
-                        <div class="moreDetail" id="${snapshot.key}details">
-                            <div class="timeBox">
-                            <span id="${snapshot.key}name" class="username yourUsername">${snapshot.val().user.split(' ')[0]}</span>
-                            <span id="yourTime" class="time yourTime">${snapshot.val().time}</span>
-                            </div>
-                        </div>
-                    </div>`;
-                }
-                received.play();
-            }
-            if(snapshot.val().reply){
-                let xName = snapshot.val().replyToUser;
-                if(xName == userName){
-                    xName = 'You'
-                }
-                if(snapshot.val().user == userName){
-                    document.getElementById(snapshot.key+'replyToMsgSec').innerHTML =
-                    `<div class="replyToMsgSecIn replyToMsgSecInMy">
-                        <div id="${snapshot.key}replyToMsgSecInner" class="replyToMsgSecInner replyToMsgSecInnerMy" onclick="window.location.href = '#${snapshot.val().key}outerSkin';document.getElementById('${snapshot.val().key}outerSkin').classList.add('highlighted');setTimeout(() => {document.getElementById('${snapshot.val().key}outerSkin').classList.remove('highlighted')}, 5000)">
-                            <div class="replyToUserBox replyToUserBoxMy">
-                                <span class="replyToUserBoxIn" id="${snapshot.key}replyToUserBoxIn">
-                                    ${xName}
-                                </span>
-                            </div>
-                            <div class="replyToMsgBox replyToMsgBoxMy">
-                                <span class="replyToMsgBoxIn">
-                                    ${snapshot.val().replyToMsg}
-                                </span>
-                            </div>
-                        </div>
-                    </div>`;
-                }else{
-                    document.getElementById(snapshot.key+'replyToMsgSec').innerHTML =
-                    `<div class="replyToMsgSecIn replyToMsgSecInYour">
-                        <div id="${snapshot.key}replyToMsgSecInner" class="replyToMsgSecInner replyToMsgSecInnerYour" onclick="window.location.href = '#${snapshot.val().key}outerSkin';document.getElementById('${snapshot.val().key}outerSkin').classList.add('highlighted');setTimeout(() => {document.getElementById('${snapshot.val().key}outerSkin').classList.remove('highlighted')}, 5000)">
-                            <div class="replyToUserBox replyToUserBoxYour">
-                                <span class="replyToUserBoxIn" id="${snapshot.key}replyToUserBoxIn">
-                                    ${xName}
-                                </span>
-                            </div>
-                            <div class="replyToMsgBox replyToMsgBoxYour">
-                                <span class="replyToMsgBoxIn">
-                                    ${snapshot.val().replyToMsg}
-                                </span>
-                            </div>
-                        </div>
-                    </div>`;
-                }
-            }
-            if (snapshot.val().message.match(nameRegex)) {
-                document.getElementById(snapshot.key).innerHTML = snapshot.val().message.replace(nameRegex, function(name) {
-                    return '<i class="foundUsername">' + name + '</i>'
-                })
-            }
-            if (snapshot.val().message.match(urlRegex)) {
-                document.getElementById(snapshot.key).innerHTML = snapshot.val().message.replace(urlRegex, function(url) {
-                    return '<a class="foundLink" href="' + url + '">' + url + '</a>'
-                })
-            }
-            if (snapshot.val().message.length <= 1) {
-              document.getElementById(snapshot.key).classList.add("singleItem");
-            }
-            if (/\p{Extended_Pictographic}/u.test(snapshot.val().message) == true && snapshot.val().message.length <= 2) {
-                document.getElementById(snapshot.key).classList.add("imojiMsg");
-            }
-            if(snapshot.val().reply){
-                var replyToUserBoxIn = document.getElementById(snapshot.key+"replyToUserBoxIn");
-                var replyToMsgSecInner = document.getElementById(snapshot.key+'replyToMsgSecInner');
-                function getRandomColor2(name) {
-                    const asciiCode = name.charCodeAt(0);
-                    const colorNum = asciiCode.toString() + asciiCode.toString() + asciiCode.toString();
-                    var num = Math.round(0xffffff * parseInt(colorNum));
-                    var r = num >> 16 & 255;
-                    var g = num >> 8 & 255;
-                    var b = num & 255;
-                    replyToUserBoxIn.style.color = 'rgb(' + r + ', ' + g + ', ' + b + ', 1)';
-                    replyToMsgSecInner.style.borderColor = 'rgb(' + r + ', ' + g + ', ' + b + ', 1)';
-                }
-                getRandomColor2(snapshot.val().replyToUser.charAt(0))
-            }
-            userData.scrollTop = userData.scrollHeight;
-            connectionStatus.innerText = 'Connected';
-        }
-        if(snapshot.val().user !== userName){
-            if(!snapshot.val().join){
-                var profilePic = document.getElementById(snapshot.key+'profilePic');
-            }
-            var yourUsername = document.getElementById(snapshot.key + "name");
-            function getRandomColor(name) {
-                const asciiCode = name.charCodeAt(0);
-                const colorNum = asciiCode.toString() + asciiCode.toString() + asciiCode.toString();
-                var num = Math.round(0xffffff * parseInt(colorNum));
-                var r = num >> 16 & 255;
-                var g = num >> 8 & 255;
-                var b = num & 255;
-                yourUsername.style.color = 'rgb(' + r + ', ' + g + ', ' + b + ', 1)';
-                if(!(snapshot.val().join || snapshot.val().typer)){
-                    profilePic.style.backgroundColor = 'rgb(' + r + ', ' + g + ', ' + b + ', 1)';
-                }
-            }
-            getRandomColor(snapshot.val().user.charAt(0))
-        }
-    })
-    window.onload = function(){
-        if(ref(db, 'messages/typings')){
-            remove(ref(db, 'messages/typings'))
-        }
-    }
-    typer.onkeydown = function(){
-        window.clearTimeout(timer);
-        set(ref(db, 'messages/typings'), {
-            typer: true,
-            user: localStorage.getItem('userName').trim(),
-        })
-    }
-    typer.onkeyup = function(){
-        window.clearTimeout(timer);
-        timer = window.setTimeout(()=>{
-            remove(ref(db, 'messages/typings'))
-        }, timeoutVal)
-    }
-    module.delMsg = function delMsg(key) {
-        remove(ref(db, 'messages/' + key))
-    }
-    module.selectMsg = function selectMsg(key){
-        document.getElementById(key+'outerSkin').classList.toggle('outerSkinSelected');
-    }
-    module.replyTo = function replyTo(key) {
-        userMessage.focus();
-        let replyToUser = document.getElementById(key+'name').innerHTML.split(' ')[0].trim();
-        if(replyToUser == 'You'){
-            replyToUser = localStorage.getItem("userName").split(' ')[0].trim();
-        }
-        let replyToMsg = document.getElementById(key).innerHTML.trim();
-        let replyToMsgSec = document.getElementById("replyToMsgSec");
-        replyToMsgSec.innerHTML =
-        `<div class="replyToMsgSecPad">
-            <div class="replyToMsgSecIn">
-                <button class="closeReplying" type="button" onclick="replyToMsgSec.innerHTML = ''"></button>
-                <div class="replyToMsgSecInner" onclick="window.location.href = '#${key}outerSkin';document.getElementById('${key}outerSkin').classList.add('highlighted');setTimeout(() => {document.getElementById('${key}outerSkin').classList.remove('highlighted')}, 5000)">
-                    <div class="replyToUserBox">
-                        <span class="replyToUserBoxIn" id="replyToUserBoxIn">
-                            ${replyToUser}
-                        </span>
-                    </div>
-                    <div class="replyToMsgBox">
-                        <span class="replyToMsgBoxIn" id="replyToMsgBoxIn" key="${key}">
-                            ${replyToMsg}
-                        </span>
-                    </div>
-                </div>
-            </div>
+
+    // ── Typing (ephemeral node, handled separately)
+    if (val.typer) return;
+
+    // ── Regular message
+    const row = document.createElement("div");
+    row.className = `msg-row ${isMine ? "mine" : "theirs"}`;
+    row.id = `msg_${key}`;
+    row.setAttribute("data-key", key);
+
+    const color = avatarColor(val.user);
+    const formatted = formatMessage(val.message);
+    const emojiOnly = isEmojiOnly(val.message);
+    const displayUser = isMine ? "You" : sanitize(val.user);
+
+    // reply snippet inside bubble
+    let replyHTML = "";
+    if (val.reply) {
+      const rUser = val.replyToUser === username ? "You" : sanitize(val.replyToUser);
+      replyHTML = `
+        <div class="bubble-reply" onclick="scrollToMsg('${val.replyKey}')">
+          <span class="bubble-reply-user">${rUser}</span>
+          <p class="bubble-reply-text">${sanitize(val.replyToMsg || "")}</p>
         </div>`;
     }
-    onChildRemoved(ref(db, 'messages'), (snapshot) => {
-        if(document.getElementById(snapshot.key)){
-            var msg = document.getElementById(snapshot.key);
-            let noIconSvg = `<svg class="noIcon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="18" height="18" viewBox="0 0 256 256" xml:space="preserve"><g style="stroke: none; stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: none; fill-rule: nonzero; opacity: 1;" transform="translate(1.4065934065934016 1.4065934065934016) scale(2.81 2.81)" ><path d="M 45 90 c -12.02 0 -23.32 -4.681 -31.82 -13.181 C 4.681 68.32 0 57.02 0 45 c 0 -12.02 4.681 -23.32 13.18 -31.82 l 0 0 l 0 0 C 21.68 4.681 32.98 0 45 0 c 12.02 0 23.32 4.681 31.819 13.18 C 85.319 21.68 90 32.98 90 45 c 0 12.02 -4.681 23.32 -13.181 31.819 C 68.32 85.319 57.02 90 45 90 z M 45 8 c -9.883 0 -19.174 3.849 -26.163 10.837 l 0 0 C 11.849 25.826 8 35.117 8 45 c 0 9.883 3.849 19.174 10.837 26.163 C 25.826 78.151 35.117 82 45 82 c 9.883 0 19.174 -3.849 26.163 -10.837 C 78.151 64.174 82 54.883 82 45 c 0 -9.883 -3.849 -19.174 -10.837 -26.163 C 64.174 11.849 54.883 8 45 8 z" style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill-rule: nonzero; opacity: 1;" class="noIconColor" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round" /><rect x="4" y="41" rx="0" ry="0" width="82" height="8" style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill-rule: nonzero; opacity: 1;" class="noIconColor" transform=" matrix(0.707 -0.7072 0.7072 0.707 -18.6396 45.0055) "/></g></svg>`;
-            if (snapshot.val().user == userName) {
-                msg.innerHTML = 
-                `<i class="deletedMsg myDeletedMsg">${noIconSvg}You deleted this message</i>`;
-            } else {
-                msg.innerHTML = 
-                `<i class="deletedMsg yourDeletedMsg">${noIconSvg}This message was deleted</i>`;
-            }
-            document.getElementById(snapshot.key + 'funcBtns').remove();
-            document.getElementById(snapshot.key+'replyToMsgSec').remove();
-        }
-        if(snapshot.val().typer){
-            typerStatus.innerHTML = `<span class="typerName">All</span> done typing!`;
-        }
-    })
+
+    // action buttons
+    const delBtn = isMine
+      ? `<button class="msg-action-btn del" onclick="deleteMsg('${key}')">Delete</button>`
+      : "";
+    const replyBtn = `<button class="msg-action-btn" onclick="replyToMsg_('${key}','${sanitize(val.user)}','${sanitize(val.message).replace(/'/g,"\\'")}')">Reply</button>`;
+
+    row.innerHTML = `
+      <div class="msg-avatar" style="background:${color};color:#fff">${avatarLetter(val.user)}</div>
+      <div class="msg-bubble-wrap">
+        ${!isMine ? `<span class="msg-sender" style="color:${color}">${sanitize(val.user)}</span>` : ""}
+        <div class="msg-bubble${emojiOnly ? " emoji-only" : ""}" id="bubble_${key}">
+          ${replyHTML}
+          <span id="msgtext_${key}">${formatted}</span>
+        </div>
+        <div class="msg-meta">
+          <span class="msg-time">${val.time}</span>
+          <div class="msg-actions">
+            ${replyBtn}
+            ${delBtn}
+          </div>
+        </div>
+      </div>`;
+
+    messagesEl.appendChild(row);
+    scrollBottom();
+
+    if (!isMine) recvAudio.play().catch(() => {});
+  }
+
+  // ── Firebase listeners ─────────────────────────────────────────
+  onChildAdded(ref(db, "messages"), snap => {
+    if (snap.val().typer) {
+      // typing signal node
+      if (snap.val().user !== username) {
+        showTyping(snap.val().user);
+      }
+      return;
+    }
+    renderMessage(snap);
+  });
+
+  onChildRemoved(ref(db, "messages"), snap => {
+    if (snap.val().typer) {
+      hideTyping();
+      return;
+    }
+    if (snap.val().join) {
+      const el = document.getElementById(`${snap.key}_event`);
+      if (el) el.remove();
+      return;
+    }
+    // deleted message
+    const bubble = document.getElementById(`bubble_${snap.key}`);
+    if (bubble) {
+      bubble.classList.add("deleted");
+      bubble.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:.5;margin-right:5px"><circle cx="12" cy="12" r="9"/><line x1="4.5" y1="4.5" x2="19.5" y2="19.5"/></svg>${snap.val().user === username ? "You deleted this" : "Message deleted"}`;
+      const meta = bubble.parentElement.querySelector(".msg-meta .msg-actions");
+      if (meta) meta.remove();
+    }
+  });
+
+  // real-time typing watcher
+  onValue(ref(db, "messages/typing"), snap => {
+    if (snap.exists() && snap.val().user !== username) {
+      showTyping(snap.val().user);
+    } else {
+      hideTyping();
+    }
+  });
+
+  let typingHideTimer;
+  function showTyping(user) {
+    typingText.innerHTML = `<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>&nbsp;<strong>${sanitize(user)}</strong> is typing…`;
+    clearTimeout(typingHideTimer);
+    typingHideTimer = setTimeout(hideTyping, 3000);
+  }
+  function hideTyping() {
+    typingText.innerHTML = "";
+  }
+
+  // ── Global helpers (called from inline onclick) ────────────────
+  window.deleteMsg = key => remove(ref(db, `messages/${key}`));
+
+  window.replyToMsg_ = (key, user, text) => startReply(key, user, text);
+
+  window.scrollToMsg = key => {
+    const el = document.getElementById(`msg_${key}`);
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    const bubble = document.getElementById(`bubble_${key}`);
+    if (bubble) {
+      bubble.classList.add("highlighted");
+      setTimeout(() => bubble.classList.remove("highlighted"), 2000);
+    }
+  };
 }
-retrieveData();
