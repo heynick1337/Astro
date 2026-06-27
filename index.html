@@ -1,167 +1,497 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Astro</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Astro · Global Chat</title>
   <link rel="shortcut icon" href="favicon.png" type="image/x-icon">
-  <link rel="stylesheet" href="moreFiles/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="moreFiles/style.css?v=9">
 </head>
-<body>
-  <div class="loader" id="loader">
-    <svg class="svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="svg8" version="1.1" viewBox="0 0 95.05 113.63">
-      <defs>
-        <linearGradient id="linearGradient857"><stop id="stop853" offset="0" stop-color="#d089ff" stop-opacity="1"/><stop id="stop855" offset="1" stop-color="#7f00f5" stop-opacity="1"/></linearGradient>
-        <linearGradient id="linearGradient859" x1="37.47" x2="62.79" y1="9.1" y2="90.19" gradientUnits="userSpaceOnUse" xlink:href="#linearGradient857"/>
-      </defs>
-      <g id="layer1" transform="translate(.28 -.13)">
-        <path id="rect835" fill="none" fill-opacity="1" stroke-width=".4" d="M-.28.13h95.05v113.63H-.28z" opacity="1"/>
-        <path id="flame" fill="url(#linearGradient859)" fill-opacity="1" stroke-width=".87" d="M76.12 66.56c0 15.63-13.23 28.31-29.54 28.31-16.3 0-29.73-12.68-29.53-28.31.28-21.7 21.5-33.27 22.1-50.09 10.79 2.2 36.97 24.8 36.97 50.09z" opacity="1"/>
-        <circle class="circle" id="ci1" cx="46.58" cy="66.56" r="1"/>
-        <circle class="circle" id="ci2" cx="46.58" cy="66.56" r="1"/>
-        <circle class="circle" id="ci3" cx="46.58" cy="66.56" r="1"/>
-        <circle class="circle" id="ci4" cx="46.58" cy="66.56" r="1"/>
-        <path id="rect848" fill="#7f00f5" fill-opacity="1" stroke-width=".4" d="M103.06 22.47h16.68v7.2h-13.22c-.67 0-.88.58-.88.58z" opacity="1" transform="rotate(39.18)"/>
-        <path id="circle843" fill="#21034f" fill-opacity="1" stroke-width=".4" d="M50.77 61.02a7 7 0 10-8.78 10.9c3.44 2.77 5.95 1.3 8.68 3.5l25.66 20.66 5.36-6.65L56.45 69.1c-3.21-2.59-1.98-5.1-5.68-8.08z" opacity="1"/>
-        <ellipse id="path851" cx="46.37" cy="63.24" fill="#d594ff" fill-opacity="1" stroke-width=".4" opacity="1" rx="2.01" ry="1.24"/>
-      </g>
-    </svg>
+<body data-theme="dark">
+
+<!-- LOGIN -->
+<div id="loginScreen" class="login-screen">
+  <div class="login-bg-grid"></div>
+  <div class="login-card">
+    <div class="login-brand">
+      <svg class="brand-icon" viewBox="0 0 48 48" fill="none">
+        <circle cx="24" cy="24" r="20" stroke="var(--accent)" stroke-width="2" opacity="0.3"/>
+        <circle cx="24" cy="24" r="12" stroke="var(--accent)" stroke-width="2" opacity="0.6"/>
+        <circle cx="24" cy="24" r="4" fill="var(--accent)"/>
+        <line x1="24" y1="4" x2="24" y2="12" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/>
+        <line x1="24" y1="36" x2="24" y2="44" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/>
+        <line x1="4" y1="24" x2="12" y2="24" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/>
+        <line x1="36" y1="24" x2="44" y2="24" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <div class="brand-name">Astro</div>
+        <div class="brand-sub">Global Chat Room</div>
+      </div>
+    </div>
+    <div class="login-divider"></div>
+    <div class="login-field">
+      <label class="field-label" for="loginInput">Username</label>
+      <input id="loginInput" class="field-input" type="text" placeholder="Enter a username…" maxlength="20" autocomplete="off" spellcheck="false">
+      <div class="field-hint" id="loginHint">3–20 characters · letters, numbers, _ or –</div>
+    </div>
+    <div class="login-field">
+      <label class="field-label">Theme</label>
+      <div class="theme-picker" id="themePicker">
+        <button class="theme-opt active" data-theme="dark"><span class="theme-swatch" style="background:#6366f1"></span>Dark</button>
+        <button class="theme-opt" data-theme="light"><span class="theme-swatch" style="background:#64748b"></span>Light</button>
+      </div>
+    </div>
+    <button class="login-btn" id="loginBtn">
+      Join Chat
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+    <div class="login-footer">Anonymous · No account needed · Real-time</div>
   </div>
+</div>
 
-  <div class="main" id="main">
-    <div class="skin">
-      <nav class="navbar">
-        <div class="leftSide">
-          <div class="profileSec">
-            <div class="profileSecIn">
-              <div id="img" class="profilePic img">?</div>
-            </div>
-            <div class="userInfo">
-              <span class="name"><span class="name uName" id="name">Astro</span><span class="slash" id="slash"></span></span>
-              <span class="connectionStatus" id="connectionStatus">Connecting...</span>
-            </div>
+<!-- APP -->
+<div id="appScreen" class="app" style="display:none">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-header">
+      <div class="sb-logo">
+        <svg viewBox="0 0 48 48" fill="none" width="20" height="20">
+          <circle cx="24" cy="24" r="20" stroke="var(--accent)" stroke-width="2" opacity="0.4"/>
+          <circle cx="24" cy="24" r="10" stroke="var(--accent)" stroke-width="2" opacity="0.7"/>
+          <circle cx="24" cy="24" r="3" fill="var(--accent)"/>
+          <line x1="24" y1="4" x2="24" y2="14" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="24" y1="34" x2="24" y2="44" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="4" y1="24" x2="14" y2="24" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="34" y1="24" x2="44" y2="24" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <span>Astro</span>
+      </div>
+      <button class="sb-close" id="sbClose">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <!-- Live Clock -->
+    <div class="sb-clock">
+      <div class="sb-clock-time" id="clockTime">12:00:00 AM</div>
+      <div class="sb-clock-date" id="clockDate">Monday, Jan 1</div>
+    </div>
+
+    <!-- My Profile (username + role only — device rows only for admin) -->
+    <div class="sb-profile-section">
+      <div class="sb-section-title" style="margin-bottom:8px">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        My Profile
+      </div>
+      <div class="profile-card" id="profileCard">
+        <div class="profile-card-header">
+          <div class="profile-big-av" id="profileAv" style="background:var(--accent)">?</div>
+          <div>
+            <div class="profile-username" id="profileUsername">—</div>
+            <div class="profile-role" id="profileRole">member</div>
           </div>
         </div>
-        <div class="navRight">
-          <div id="themeSwitcher" class="themeSwitcher"></div>
-          <button class="infoBtn" id="infoBtn">
-            <svg width="28px" height="28px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" transform="rotate(90)">
-              <path d="M7 19V11M12 19V7M17 19V15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- profile-rows only populated for admin -->
+        <div class="profile-rows" id="profileRows" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- Online users -->
+    <div class="sb-section">
+      <div class="sb-section-title">
+        <span class="pulse-dot"></span>
+        Online
+        <span class="online-badge" id="onlineBadge">0</span>
+      </div>
+      <div class="online-list" id="onlineList"></div>
+    </div>
+
+    <!-- Theme -->
+    <div class="sb-section">
+      <div class="sb-section-title">Theme</div>
+      <div class="sb-theme-grid">
+        <button class="sb-theme active" data-theme="dark" style="background:#6366f1" title="Dark"></button>
+        <button class="sb-theme" data-theme="light" style="background:#fff" title="Light"></button>
+      </div>
+    </div>
+
+
+
+    <div class="sb-spacer"></div>
+
+    <div class="sb-footer">
+      <button class="sb-leave-btn" onclick="leaveChat()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+        Leave Chat
+      </button>
+    </div>
+
+    <div class="page-footer">
+      <div class="footer-name">Built by Nikhil Sahu</div>
+      <div class="footer-links">
+        <a class="footer-link" href="https://github.com/heynick1337" target="_blank" rel="noopener">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg>
+          GitHub
+        </a>
+        <a class="footer-link" href="https://linkedin.com/in/heynick1337" target="_blank" rel="noopener">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+          LinkedIn
+        </a>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- MAIN CHAT -->
+  <div class="chat-main">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-l">
+        <button class="topbar-menu-btn" id="menuBtn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+        </button>
+        <div class="topbar-avatar" id="topAvatar">?</div>
+        <div class="topbar-info">
+          <div class="topbar-name" id="topName">Astro</div>
+          <div class="topbar-status">
+            <span class="status-dot" id="statusDot"></span>
+            <span id="statusTxt">Connecting…</span>
+          </div>
+        </div>
+      </div>
+      <div class="topbar-r">
+        <button id="selectBtn" class="topbar-select-btn" onclick="toggleSelectMode()" title="Select messages">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><polyline points="9 12 11 14 15 10"/></svg>
+          <span>Select</span>
+        </button>
+        <button id="deleteSelectedBtn" class="topbar-delete-sel-btn" onclick="deleteSelected()" title="Delete" style="display:none">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+          <span id="deleteSelLabel">Delete for me</span> (<span id="selCount">0</span>)
+        </button>
+        <span class="room-pill">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20"/></svg>
+          <span>Global</span>
+        </span>
+      </div>
+    </header>
+
+    <!-- MESSAGES -->
+    <div class="messages" id="messages">
+      <div class="messages-inner" id="messagesInner">
+        <div class="welcome-card" id="welcomeCard">
+          <div class="welcome-icon">
+            <svg viewBox="0 0 48 48" fill="none" width="32" height="32">
+              <circle cx="24" cy="24" r="20" stroke="var(--accent)" stroke-width="2" opacity="0.4"/>
+              <circle cx="24" cy="24" r="10" stroke="var(--accent)" stroke-width="2" opacity="0.7"/>
+              <circle cx="24" cy="24" r="3" fill="var(--accent)"/>
             </svg>
-          </button>
-          <div class="aboutThis">
-            <div class="currentTime" id="currentTime"></div>
-            <h2 class="abt">About</h2>
-            <p class="aboutTxt">Astro — anonymous group chat. Talk freely.</p>
           </div>
-        </div>
-      </nav>
-
-      <!-- Admin Panel (hidden for non-admin) -->
-      <div id="adminPanel" class="adminPanel" style="display:none">
-        <div class="adminPanelTitle">⭐ Admin Controls</div>
-        <div class="adminControls">
-          <button id="adminShowUsers" class="adminBtn">👥 Users</button>
-          <button id="adminClearChat" class="adminBtn adminBtnDanger">🗑 Clear Chat</button>
-        </div>
-        <form id="adminMsgForm" class="adminMsgForm">
-          <input id="adminMsgInput" class="adminMsgInput" placeholder="Broadcast announcement..." autocomplete="off">
-          <button type="submit" class="adminBtn">📢 Send</button>
-        </form>
-        <div class="adminBanRow">
-          <input id="adminBanInput" class="adminMsgInput" placeholder="Ban username..." autocomplete="off">
-          <button id="adminBanBtn" class="adminBtn adminBtnDanger">🚫 Ban</button>
+          <div class="welcome-title">Welcome to Astro</div>
+          <div class="welcome-desc">You're connected to the global chat. Say hello to strangers around the world.</div>
         </div>
       </div>
+    </div>
 
-      <!-- Admin Users Modal -->
-      <div id="adminUsersModal" class="adminUsersModal" style="display:none">
-        <div class="adminUsersModalBox">
-          <div class="adminUsersModalHeader">
-            <span>Online Users</span>
-            <button id="adminCloseUsers" class="adminCloseBtn">✕</button>
-          </div>
-          <div id="adminUserList" class="adminUserList"></div>
+    <!-- TYPING -->
+    <div class="typing-status idle" id="typingStatus">
+      <div class="typing-dots"><span></span><span></span><span></span></div>
+      <span id="typingText">Everyone's quiet</span>
+    </div>
+
+    <!-- REPLY BAR -->
+    <div class="reply-bar" id="replyBar" style="display:none">
+      <div class="reply-bar-content">
+        <div style="min-width:0;flex:1">
+          <div class="reply-bar-user" id="replyBarUser"></div>
+          <div class="reply-bar-msg" id="replyBarMsg"></div>
         </div>
+        <button class="reply-bar-close" onclick="clearReply()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
       </div>
+    </div>
 
-      <div name="userData" class="messageSec" id="messageSec">
-        <div class="background">
-          <div class="area"><ul class="circles"><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li></ul></div>
-        </div>
-        <div class="height"></div>
-        <div id="messageSecIn" class="messageSecIn">
-          <div class="outerSkin yourOuterSkin" id="test">
-            <div class="msgContainer yourMsgContainer">
-              <div class="profilePic yourProfilePic">/</div>
-              <div class="mainMsgSec yourMainMsgSec">
-                <div class="msgBox yourMsgBox">
-                  <span id="yourMessage" class="message yourMessage astroSays" style="font-family:monospace;font-size:.9rem;">
-                    Hello <span class="username username2" id="myUsername2">user</span>,<br>
-                    welcome to Astro — where strangers connect anonymously.<br><br>
-                    <b>Double-tap any message to reply.</b>
-                    <div id="currentTime2" class="currentTime currentTime2">--:-- --, --- -- of ---, ----</div>
-                  </span>
-                </div>
-              </div>
-            </div>
-            <div class="moreDetail">
-              <div class="timeBox">
-                <span id="yourUsername" class="username yourUsername">Astro</span>
-                <span id="yourTime" class="time yourTime">--:-- --</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="typerStatus">
-        <span class="typing" id="typerStatus"><span class="typerName">All</span> done typing!</span>
-        <i class="wordColor" id="wordColor"></i>
-      </div>
-
-      <div class="typeMsg">
-        <div name="replyToMsgSec" class="replyToMsgSec" id="replyToMsgSec"></div>
-        <div class="typeMsgIn">
-          <button class="menu" type="button" onclick="menuTxt.classList.toggle('menuTxtHide');inputBox.focus()">
-            <svg style="pointer-events:none" class="menuBar" fill="#fff" width="22px" height="22px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" stroke="#fff" stroke-width="0.024">
-              <path d="M20,11H4c-.6,0-1,.4-1,1s.4,1,1,1h16c.6,0,1-.4,1-1S20.6,11,20,11zM4,8h16c.6,0,1-.4,1-1s-.4-1-1-1H4C3.4,6,3,6.4,3,7S3.4,8,4,8zM20,16H4c-.6,0-1,.4-1,1s.4,1,1,1h16c.6,0,1-.4,1-1S20.6,16,20,16z"/>
-            </svg>
-            <span style="pointer-events:none" class="menuTxt" name="menuTxt">Menu</span>
-          </button>
-          <div class="inputSec" id="typer" onclick="triggered()" onmouseleave="unTriggered()">
-            <div id="inputBox" name="inputBox" class="inputBox" oninput="getRandomColor(this.innerText.trim().slice(-1))" contenteditable="true" data-placeholder="Message"></div>
-          </div>
-          <button id="sendBtn" class="sendBtn" type="button" onclick="module.sendMsg();triggered();scrollDown()" onmouseleave="unTriggered()">
-            <span style="pointer-events:none" class="sendBtnTxt sendBtnTxtHide">Send</span>
-            <svg style="pointer-events:none" width="28px" height="28px" viewBox="0 -0.5 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path fill-rule="evenodd" clip-rule="evenodd" d="M18.455 9.8834L7.063 4.1434C6.76535 3.96928 6.40109 3.95274 6.08888 4.09916C5.77667 4.24558 5.55647 4.53621 5.5 4.8764C5.5039 4.98942 5.53114 5.10041 5.58 5.2024L7.749 10.4424C7.85786 10.7903 7.91711 11.1519 7.925 11.5164C7.91714 11.8809 7.85789 12.2425 7.749 12.5904L5.58 17.8304C5.53114 17.9324 5.5039 18.0434 5.5 18.1564C5.55687 18.4961 5.77703 18.7862 6.0889 18.9323C6.40078 19.0785 6.76456 19.062 7.062 18.8884L18.455 13.1484C19.0903 12.8533 19.4967 12.2164 19.4967 11.5159C19.4967 10.8154 19.0903 10.1785 18.455 9.8834Z" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-        </div>
+    <!-- INPUT -->
+    <div class="input-bar">
+      <div class="input-wrap">
+        <div id="inputBox" class="input-box" contenteditable="true" data-placeholder="Message everyone…" spellcheck="true"></div>
+        <button class="send-btn" id="sendBtn">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+        </button>
       </div>
     </div>
   </div>
 
-  <script>
-    module = {};
-    let menuTxt = document.querySelector(".menuTxt");
-    let sendBtnTxt = document.querySelector(".sendBtnTxt");
-    let userData = document.getElementById('messageSec');
-    function scrollDown(){ userData.scrollTop = userData.scrollHeight; }
-    function triggered(){ menuTxt.classList.add('menuTxtHide'); sendBtnTxt.classList.remove('sendBtnTxtHide'); }
-    function unTriggered(){ menuTxt.classList.remove('menuTxtHide'); sendBtnTxt.classList.add('sendBtnTxtHide'); }
-    var wordColor = document.getElementById('wordColor');
-    function getRandomColor(name) {
-      if (!name) return;
-      const code = name.charCodeAt(0);
-      const s = code.toString().repeat(3);
-      const num = Math.round(0xffffff * parseInt(s));
-      const r = (num >> 16) & 255, g = (num >> 8) & 255, b = num & 255;
-      wordColor.style.backgroundColor = `rgb(${r},${g},${b})`;
-      wordColor.style.boxShadow = `0 0 5px rgb(${r},${g},${b})`;
-    }
-  </script>
-  <script src="moreFiles/script.js" type="module"></script>
+  <!-- ADMIN MODAL -->
+  <div class="modal-overlay" id="adminModalOverlay" style="display:none" onclick="closeAdminModal()"></div>
+  <div class="admin-modal" id="adminModal" style="display:none">
+    <div class="admin-modal-header">
+      <div class="admin-modal-title">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Admin Panel
+      </div>
+      <button onclick="closeAdminModal()" class="modal-close-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="admin-tabs">
+      <button class="admin-tab active" onclick="switchAdminTab('users',this)">Users</button>
+      <button class="admin-tab" onclick="switchAdminTab('blocked',this)">Blocked</button>
+      <button class="admin-tab" onclick="switchAdminTab('settings',this)">Settings</button>
+    </div>
+    <div id="adminTabUsers" class="admin-tab-panel"><div id="adminUserList"></div></div>
+    <div id="adminTabBlocked" class="admin-tab-panel" style="display:none"><div id="adminBlockedList"></div></div>
+    <div id="adminTabSettings" class="admin-tab-panel" style="display:none">
+      <div class="admin-setting-row">
+        <div><div class="admin-setting-label">Clear all messages</div><div class="admin-setting-hint">Permanently deletes the entire chat history</div></div>
+        <button class="admin-danger-btn" onclick="adminClearAll()">Clear Chat</button>
+      </div>
+      <div class="admin-setting-row">
+        <div><div class="admin-setting-label">Auto-flag threshold</div><div class="admin-setting-hint">Users auto-banned after 7 flags</div></div>
+        <div class="admin-setting-value">7 flags</div>
+      </div>
+      <div class="admin-setting-row">
+        <div><div class="admin-setting-label">Broadcast message</div><div class="admin-setting-hint">Send announcement to everyone</div></div>
+        <button class="admin-btn" onclick="openBroadcast()">Broadcast</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BROADCAST MODAL -->
+  <div class="modal-overlay" id="broadcastOverlay" style="display:none" onclick="closeBroadcast()"></div>
+  <div class="broadcast-modal" id="broadcastModal" style="display:none">
+    <div class="admin-modal-header">
+      <div class="admin-modal-title">Broadcast to Everyone</div>
+      <button onclick="closeBroadcast()" class="modal-close-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <textarea id="broadcastInput" class="broadcast-textarea" placeholder="Write your announcement…" rows="3"></textarea>
+    <button class="admin-btn" style="width:calc(100% - 32px);margin:10px 16px;justify-content:center" onclick="sendBroadcast()">Send Announcement</button>
+  </div>
+
+  <!-- FLAG MODAL -->
+  <div class="modal-overlay" id="flagOverlay" style="display:none"></div>
+  <div class="flag-modal" id="flagModal" style="display:none">
+    <div class="flag-modal-title">Report User</div>
+    <div class="flag-modal-desc">Flag <strong id="flagTargetName"></strong> for inappropriate behaviour? After 7 flags from different users, they'll be auto-banned.</div>
+    <div class="flag-modal-btns">
+      <button class="flag-cancel-btn" onclick="closeFlagModal()">Cancel</button>
+      <button class="flag-confirm-btn" onclick="confirmFlag()">Flag User</button>
+    </div>
+  </div>
+
+</div><!-- /appScreen -->
+
+<script>
+// ─── Theme ────────────────────────────────────────────────────────
+const THEMES = ['dark','light'];
+function applyTheme(t) {
+  if (!THEMES.includes(t)) t = 'dark';
+  document.body.setAttribute('data-theme', t);
+  localStorage.setItem('astro_theme', t);
+  document.querySelectorAll('.theme-opt,.sb-theme').forEach(el => {
+    el.classList.toggle('active', el.dataset.theme === t);
+  });
+}
+document.querySelectorAll('.theme-opt,.sb-theme').forEach(b => b.addEventListener('click', () => applyTheme(b.dataset.theme)));
+applyTheme(localStorage.getItem('astro_theme') || 'dark');
+
+// ─── Login ────────────────────────────────────────────────────────
+const UN_RE = /^[a-zA-Z0-9_-]{3,20}$/;
+document.getElementById('loginBtn').addEventListener('click', doLogin);
+document.getElementById('loginInput').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+function doLogin() {
+  const val = document.getElementById('loginInput').value.trim();
+  const hint = document.getElementById('loginHint');
+  hint.classList.remove('error');
+  if (!UN_RE.test(val)) {
+    hint.textContent = '✖ Invalid — use 3–20 chars, letters/numbers/_ or –';
+    hint.classList.add('error');
+    document.getElementById('loginInput').focus();
+    return;
+  }
+  hint.textContent = '3–20 characters · letters, numbers, _ or –';
+  localStorage.setItem('astro_username', val);
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appScreen').style.display = 'flex';
+  startApp(val);
+}
+
+// ─── Auto-login ──────────────────────────────────────────────────
+const savedUsername = localStorage.getItem('astro_username');
+if (savedUsername && UN_RE.test(savedUsername)) {
+  document.getElementById('loginInput').value = savedUsername;
+  window._pendingAutoLogin = savedUsername;
+}
+
+// ─── Sidebar ─────────────────────────────────────────────────────
+document.getElementById('menuBtn').addEventListener('click', () => {
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('sidebarOverlay').classList.add('visible');
+});
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('visible');
+}
+document.getElementById('sbClose').addEventListener('click', closeSidebar);
+document.getElementById('sidebarOverlay').addEventListener('click', closeSidebar);
+
+// ─── Live Clock ──────────────────────────────────────────────────
+function updateClock() {
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:true});
+  const dateStr = now.toLocaleDateString('en-US', {weekday:'long', month:'short', day:'numeric'});
+  document.getElementById('clockTime').textContent = timeStr;
+  document.getElementById('clockDate').textContent = dateStr;
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+// ─── Flag modal ──────────────────────────────────────────────────
+let _flagTarget = null;
+function openFlagModal(username) {
+  _flagTarget = username;
+  document.getElementById('flagTargetName').textContent = username;
+  document.getElementById('flagModal').style.display = 'flex';
+  document.getElementById('flagOverlay').style.display = 'block';
+}
+function closeFlagModal() {
+  _flagTarget = null;
+  document.getElementById('flagModal').style.display = 'none';
+  document.getElementById('flagOverlay').style.display = 'none';
+}
+function confirmFlag() {
+  if (_flagTarget && window._flagUser) window._flagUser(_flagTarget);
+  closeFlagModal();
+}
+
+// ─── Leave ───────────────────────────────────────────────────────
+function leaveChat() {
+  if (window._leaveChat) window._leaveChat();
+  localStorage.removeItem('astro_username');
+  document.getElementById('appScreen').style.display  = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('messagesInner').innerHTML  = '';
+  document.getElementById('onlineList').innerHTML     = '';
+  document.getElementById('onlineBadge').textContent  = '0';
+  document.getElementById('profileRows').style.display = 'none';
+  closeSidebar();
+}
+
+// ─── Device info (shared, async) ─────────────────────────────────
+window.getDeviceInfo = async function() {
+  const ua  = navigator.userAgent;
+  let browser = 'Unknown', browserVer = '';
+  if      (/Edg\/(\d+)/.test(ua))               { browser='Edge';            browserVer=RegExp.$1; }
+  else if (/OPR\/(\d+)/.test(ua))               { browser='Opera';           browserVer=RegExp.$1; }
+  else if (/SamsungBrowser\/(\d+)/.test(ua))    { browser='Samsung Browser'; browserVer=RegExp.$1; }
+  else if (/Firefox\/(\d+)/.test(ua))           { browser='Firefox';         browserVer=RegExp.$1; }
+  else if (/Chrome\/(\d+)/.test(ua))            { browser='Chrome';          browserVer=RegExp.$1; }
+  else if (/Version\/([\d.]+) Safari/.test(ua)) { browser='Safari'; browserVer=RegExp.$1; }
+  else if (/MSIE (\d+)|Trident.*rv:(\d+)/.test(ua)) { browser='IE'; browserVer=RegExp.$1||RegExp.$2; }
+  const browserFull = browserVer ? `${browser} ${browserVer}` : browser;
+
+  let os = 'Unknown';
+  if      (/iPhone/.test(ua))                            { const m=ua.match(/OS ([\d_]+)/); os='iOS '+(m?m[1].replace(/_/g,'.'):'' ); }
+  else if (/iPad/.test(ua)||(/Mac/.test(ua)&&navigator.maxTouchPoints>1)) { const m=ua.match(/OS ([\d_]+)/); os='iPadOS '+(m?m[1].replace(/_/g,'.'):'' ); }
+  else if (/Android ([\d.]+)/.test(ua))                 { os='Android '+RegExp.$1; }
+  else if (/Windows NT ([\d.]+)/.test(ua))              { const m={'10.0':'10/11','6.3':'8.1','6.1':'7','6.0':'Vista','5.1':'XP'}; os='Windows '+(m[RegExp.$1]||RegExp.$1); }
+  else if (/Mac OS X ([\d_]+)/.test(ua))                { os='macOS '+RegExp.$1.replace(/_/g,'.'); }
+  else if (/CrOS/.test(ua))                             { os='Chrome OS'; }
+  else if (/Linux/.test(ua))                            { os='Linux'; }
+
+  const mtp = navigator.maxTouchPoints||0;
+  let deviceType = 'Desktop';
+  if      (/iPhone|Android.*Mobile|Windows Phone/.test(ua))                               deviceType='Mobile';
+  else if (/iPad/.test(ua)||(/Mac/.test(ua)&&mtp>1)||(/Android/.test(ua)&&!/Mobile/.test(ua))) deviceType='Tablet';
+
+  const sw=window.screen.width, sh=window.screen.height;
+  const dpr=window.devicePixelRatio||1;
+  const screenLogical=`${sw}×${sh}`;
+  const screenPhysical=dpr!==1?`${Math.round(sw*dpr)}×${Math.round(sh*dpr)} physical`:null;
+  const colorDepth=window.screen.colorDepth?`${window.screen.colorDepth}-bit`:null;
+  const pixelRatio=`${dpr.toFixed(1)}× DPR`;
+  const viewportRes=`${window.innerWidth}×${window.innerHeight}`;
+  const cores=navigator.hardwareConcurrency?`${navigator.hardwareConcurrency} logical cores`:null;
+  const memory=navigator.deviceMemory?`≥${navigator.deviceMemory} GB`:null;
+  const conn=navigator.connection||navigator.mozConnection||navigator.webkitConnection;
+  const network=navigator.onLine?'Online':'Offline';
+  const connType=conn?.effectiveType?.toUpperCase()||null;
+  const connSpeed=conn?.downlink?`~${conn.downlink} Mbps`:null;
+
+  let battery=null;
+  try { if(navigator.getBattery){ const b=await navigator.getBattery(); battery=`${Math.round(b.level*100)}% · ${b.charging?'⚡ charging':'on battery'}`; } } catch(_){}
+
+  const lang=navigator.language||'—';
+  const tz=Intl.DateTimeFormat().resolvedOptions().timeZone||'—';
+  const now=new Date();
+  const tzOffset=now.toTimeString().match(/GMT([+-]\d{4})/)?.[1]||'';
+  const localTime=now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true});
+  const touchStr=mtp>0?`Yes · ${mtp} touch points`:'No (pointer device)';
+
+  return {
+    deviceType,os,browserFull,browser,browserVer,
+    screenLogical,screenPhysical,pixelRatio,colorDepth,viewportRes,
+    cores,memory,network,connType,connSpeed,battery,
+    lang,tz,tzOffset,localTime,touchStr,ua:ua.slice(0,300)
+  };
+};
+
+// ─── Render device rows HTML ─────────────────────────────────────
+window.renderDeviceRows = function(info) {
+  const im=`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`;
+  const ig=`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20"/></svg>`;
+  const ic=`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/></svg>`;
+  const it=`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
+  const iw=`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><circle cx="12" cy="20" r="1"/></svg>`;
+  const ib=`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="18" height="10" rx="2"/><path d="M22 11v2"/></svg>`;
+
+  function r(icon,label,value) {
+    if (!value) return '';
+    return `<div class="profile-row"><div class="profile-row-icon">${icon}</div><div><div class="profile-row-label">${label}</div><div class="profile-row-value">${value}</div></div></div>`;
+  }
+  const dv = `<div class="profile-divider"></div>`;
+  const scr = info.screenPhysical ? `${info.screenLogical} · ${info.screenPhysical} · ${info.pixelRatio}` : `${info.screenLogical} · ${info.pixelRatio}`;
+  return [
+    r(im,'Device',info.deviceType), r(im,'OS',info.os), r(ig,'Browser',info.browserFull), dv,
+    r(im,'Screen',scr), info.colorDepth?r(im,'Colour Depth',info.colorDepth):'', r(im,'Viewport',info.viewportRes), r(ig,'Touch',info.touchStr), dv,
+    info.cores?r(ic,'CPU',info.cores):'', info.memory?r(ic,'RAM',info.memory):'', info.battery?r(ib,'Battery',info.battery):'', dv,
+    r(iw,'Network',info.network), info.connType?r(iw,'Connection',info.connType):'', info.connSpeed?r(iw,'Speed',info.connSpeed):'', dv,
+    r(ig,'Language',info.lang), r(it,'Timezone',`${info.tz} (GMT${info.tzOffset})`), r(it,'Local Time',info.localTime),
+  ].join('');
+};
+
+// ─── Profile panel ────────────────────────────────────────────────
+// For regular users: just avatar + username + role (no device rows)
+// For admin: show full device rows below header
+window.renderProfilePanel = async function(username, isAdmin) {
+  const av   = document.getElementById('profileAv');
+  const uEl  = document.getElementById('profileUsername');
+  const rEl  = document.getElementById('profileRole');
+  const rows = document.getElementById('profileRows');
+  if (!av) return;
+
+  let h=0; for(let i=0;i<username.length;i++) h=username.charCodeAt(i)+((h<<5)-h);
+  const color = isAdmin ? 'linear-gradient(135deg,#fbbf24,#f59e0b)' : `hsl(${Math.abs(h)%360},55%,62%)`;
+  av.style.background = color;
+  av.style.color = isAdmin ? '#1e1e1e' : '#fff';
+  av.textContent = username.charAt(0).toUpperCase();
+  uEl.textContent = username;
+  rEl.textContent = isAdmin ? '⚡ admin' : 'member';
+
+  const info = await window.getDeviceInfo();
+  window._myDeviceInfo = info;
+
+  // Never show the admin's own device details anywhere
+  rows.style.display = 'none';
+};
+</script>
+<script src="moreFiles/script.js?v=9" type="module"></script>
 </body>
 </html>
